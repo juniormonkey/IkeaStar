@@ -72,6 +72,13 @@ void setup() {
 }
 
 void loop() {
+  // Instead of using the blocking delay(), set a delay using the pause()
+  // method in globals.h; this way the loop will continue to react to button
+  // presses during the delay.
+  if (pauseEnd > millis()) {
+    if (!pressed) { return; }
+  }
+
   if ((advanceMode == ON_BUTTON_PUSH && pressed) || advanceMode == AUTOMATIC) {
     switch (selectionMode) {
       case SEQUENTIAL:
@@ -83,6 +90,9 @@ void loop() {
     }
     pressed = false;
     reset();
+
+    // Black out all pixels between sequences.
+    blackNow();
   }
 
   uint16_t innerStep = cycleLength > 0 ? (nextStep % cycleLength) : nextStep;
@@ -95,7 +105,7 @@ void loop() {
       setCycles(1);
       setCycleLength(1);
       blackNow();
-      delay(500);
+      pause(500);
       break;
     case RAINBOW_CYCLE:
       SERIAL_PRINTLN("RAINBOW_CYCLE");
@@ -166,7 +176,7 @@ void loop() {
       break;
     case RANDOM_PIXELS:
       SERIAL_PRINTLN("RANDOM_PIXELS");
-      // pick pixels at random, set each pixel to a random color
+      // Pick pixels at random, set each pixel to a random color
       setSpeed(500);  // Delay between changes.
       setCycles(1);
       // How many pixel changes? Pick a large range (low, high)
@@ -182,8 +192,8 @@ void loop() {
       setSpeed(15);
       setCycles(advanceMode == AUTOMATIC ? Entropy.random(1, 6) : 1);
       setCycleLength(numLeds / 2);
-      setPauseLength(2000 * (Entropy.random(1, 6)) ); //  Add a pause to enjoy the effect
-      cyclePairs(innerStep, pauseLength);
+      setRandomDelay(2000 * (Entropy.random(1, 6)) ); //  Add a pause to enjoy the effect
+      cyclePairs(innerStep, randomDelay);
       break;
     default:
       // NUM_SEQUENCES is not a real value.
@@ -193,7 +203,7 @@ void loop() {
   nextStep++;
   if (nextStep >= cycles * cycleLength) {
     if (advanceMode == AUTOMATIC) {
-      delay(interSequenceDelay);  //  Add a pause to enjoy the effect
+      pause(interSequenceDelay);  //  Add a pause to enjoy the effect
       pressed = true;
     }
   }

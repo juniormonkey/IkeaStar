@@ -35,7 +35,7 @@ void rainbow(uint16_t color, uint16_t wait) {
     strip.setPixelColor(pixel, Wheel((pixel + color) & 255));
   }
   strip.show();
-  delay(wait);
+  pause(wait);
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -48,7 +48,7 @@ void rainbowCycle(uint16_t color, uint8_t speed) {
     strip.setPixelColor(pixel, Wheel(((pixel * 256 / numLeds) + color) & 255));
   }
   strip.show();
-  delay(speed);
+  pause(speed);
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -61,7 +61,7 @@ void randomPixels(uint16_t speed) {
   uint8_t blue = myColors[myBase + 2];
   strip.setPixelColor(i, red, green, blue);
   strip.show();
-  delay(speed);
+  pause(speed);
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -71,9 +71,9 @@ void wipeColor(uint16_t nextStep, uint8_t color, uint16_t wait) {
   uint8_t blue = myColors[color + 2];
   strip.setPixelColor(nextStep, red, green, blue);
   strip.show();
-  delay(interPixelDelay);
+  pause(interPixelDelay);
   if (nextStep >= cycleLength - 1) {
-    delay(wait);
+    pause(wait);
   }
 }
 
@@ -99,7 +99,7 @@ void cyclePairs(uint16_t nextStep, uint16_t wait) {
   strip.show();
 
   if (nextStep == cycleLength - 1) {
-    delay(wait);  //  Add a pause to enjoy the effect
+    pause(wait);  //  Add a pause to enjoy the effect
   }
 }
 
@@ -118,10 +118,10 @@ void blackLeadWipeColor(uint16_t nextStep, uint8_t color) {
     strip.setPixelColor(nextStep, 0);
   }
   strip.show();
-  delay(interPixelDelay);
+  pause(interPixelDelay);
   if (nextStep >= cycleLength - 1) {
-    uint16_t pause = (500 * random(2, 8));
-    delay(pause);
+    uint16_t interWipeDelay = (500 * random(2, 8));
+    pause(interWipeDelay);
   }
 }
 
@@ -140,10 +140,10 @@ void whiteLeadWipeColor(uint16_t nextStep, uint8_t color) {
     strip.setPixelColor(nextStep, 235, 235, 235);
   }
   strip.show();
-  delay(interPixelDelay);
+  pause(interPixelDelay);
   if (nextStep >= cycleLength - 1) {
-    uint16_t pause = (500 * random(2, 8));
-    delay(pause);
+    uint16_t interWipeDelay = (500 * random(2, 8));
+    pause(interWipeDelay);
   }
 }
 
@@ -156,9 +156,9 @@ void wipeRandom(uint16_t nextStep, uint16_t wait) {
   uint8_t blue = myColors[color + 2];
   strip.setPixelColor(nextStep, red, green, blue);
   strip.show();
-  delay(interPixelDelay);
+  pause(interPixelDelay);
   if (nextStep >= cycleLength - 1) {
-    delay(wait);
+    pause(wait);
   }
 }
 
