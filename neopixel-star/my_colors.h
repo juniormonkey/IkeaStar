@@ -1,16 +1,8 @@
 #ifndef MY_COLORS_H
 #define MY_COLORS_H
 
-/* Prepare the colors array
-  myBase is modulo 15, with R-G-B values, from brightest to dimmest
-  0=white, 15=red, 30=yellow, 45=green, 60=blue, 75=teal, 90=purple
-  value 135=black (all zeroes).
-  myColorCode is modulo 3, defining one shade of a given color in R-G-B.
-  You can use any modulo-3 number in the array, from 0 to 114 (black).
-  18=almost-brightest red, 51 is medium-green, 72 is dimmest-blue. */
-//Modified for NeoPixels…
+//These triplets are the R, G, and B values that go to NeoPixels.
 uint8_t myColors[] = {
-  //These triplets are the R, G, and B values that go to pixels
   //(0, 0) brite yellow
   160, 171, 0,
   37, 45, 0,
