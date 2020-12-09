@@ -1,3 +1,6 @@
+#ifndef globals_h
+#define globals_h
+
 // Some global variables that are cached between loops, and reset on a button press.
 uint8_t baseColor;
 uint16_t nextStep, speed, cycles, cycleLength, pauseLength;
@@ -19,3 +22,5 @@ void reset() {
   baseColor = 0;
   pauseLength = 0;
 }
+
+#endif

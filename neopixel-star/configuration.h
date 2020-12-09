@@ -1,7 +1,3 @@
-// Include the Adafruit_NeoPixel library  https://github.com/adafruit/Adafruit_NeoPixel
-// (and check out the Adafruit Arduino Metro Mini! https://www.adafruit.com/product/2590 )
-#include <Adafruit_NeoPixel.h>
-
 // The code below will save you from having to change the pin numbers when you
 //  change which boards to which you will be uploading.
 //
@@ -25,6 +21,13 @@
 #define SERIAL_PRINT(X)
 #define SERIAL_PRINTLN(X)
 #endif
+
+#ifndef configuration_h
+#define configuration_h
+
+// Include the Adafruit_NeoPixel library  https://github.com/adafruit/Adafruit_NeoPixel
+// (and check out the Adafruit Arduino Metro Mini! https://www.adafruit.com/product/2590 )
+#include <Adafruit_NeoPixel.h>
 
 enum SequenceAdvanceMode {
   AUTOMATIC,
@@ -75,3 +78,5 @@ const uint8_t interPixelDelay = 60;
 const SequenceAdvanceMode advanceMode = ON_BUTTON_PUSH;
 const SequenceSelectionMode selectionMode = SEQUENTIAL;
 LightSequence sequence = BLACK_NOW;
+
+#endif

@@ -1,3 +1,6 @@
+#ifndef MY_COLORS_H
+#define MY_COLORS_H
+
 /* Prepare the colors array
   myBase is modulo 15, with R-G-B values, from brightest to dimmest
   0=white, 15=red, 30=yellow, 45=green, 60=blue, 75=teal, 90=purple
@@ -89,4 +92,6 @@ uint8_t myColors[] = {
   //(25, 144) black
   0, 0, 0
 };
-uint8_t colorSets = (sizeof(myColors) / sizeof(uint8_t)) / 3;
+uint8_t colorSets = (sizeof(myColors) / sizeof(uint8_t)) / 3 - 1;
+
+#endif

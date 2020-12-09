@@ -1,3 +1,6 @@
+#ifndef randoms_h
+#define randoms_h
+
 // https://github.com/pmjdebruijn/Arduino-Entropy-Library
 #include <Entropy.h>
 
@@ -31,3 +34,5 @@ uint8_t randomColor() {
   previousColor = result;
   return result;
 }
+
+#endif
