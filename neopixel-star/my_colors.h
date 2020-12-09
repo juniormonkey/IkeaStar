@@ -1,0 +1,92 @@
+/* Prepare the colors array
+  myBase is modulo 15, with R-G-B values, from brightest to dimmest
+  0=white, 15=red, 30=yellow, 45=green, 60=blue, 75=teal, 90=purple
+  value 135=black (all zeroes).
+  myColorCode is modulo 3, defining one shade of a given color in R-G-B.
+  You can use any modulo-3 number in the array, from 0 to 114 (black).
+  18=almost-brightest red, 51 is medium-green, 72 is dimmest-blue. */
+//Modified for NeoPixels…
+uint8_t myColors[] = {
+  //These triplets are the R, G, and B values that go to pixels
+  //(0, 0) brite yellow
+  160, 171, 0,
+  37, 45, 0,
+  //(1, 6)  blue
+  0, 0, 160,
+  0, 0, 60,
+  //(2, 12)  mango, dark orange
+  145, 25, 0,
+  75, 12, 0,
+  //(3, 18)  emerald green
+  0, 160, 0,
+  0, 60, 0,
+  //(4, 24)  dark pink
+  135, 0, 26,
+  45, 0, 10,
+  //(5, 30)  salmon
+  112, 24, 20,
+  43, 12, 8,
+  //(6, 36)  bright pink
+  134, 0, 126,
+  59, 0, 41,
+  //(7, 42)  red
+  160, 0, 0,
+  60, 0, 0,
+  //(8, 48)  orange yellow
+  137, 104, 0,
+  50, 44, 0,
+  //(9, 54)  brite green-yellow
+  110, 152, 0,
+  59, 84, 0,
+  //(10, 60)  dark purple
+  62, 0, 114,
+  31, 0, 56,
+  //(11, 66)  fuschia
+  180, 0, 157,
+  53, 0, 42,
+  //(12, 72)  light lime
+  49, 154, 0,
+  30, 75, 0,
+  //(13, 78)  cyan
+  0, 90, 117,
+  0, 33, 45,
+  //(14, 84)  dim blue
+  6, 11, 100,
+  3, 8, 50,
+  //(15, 90)  teal
+  0, 167, 43,
+  0, 70, 20,
+  //(16, 96)  orange
+  160, 60, 0,
+  66, 28, 0,
+  //(17, 102)  light green
+  43, 175, 10,
+  22, 64, 8,
+  //(18, 108)  lavender
+  146, 104, 182,
+  89, 71, 106,
+  //(19, 114)  Dad's pink
+  82, 12, 31,
+  82, 12, 31,
+  //(20, 120) Dad's Pale Yellow
+  170, 68, 13,
+  170, 68, 13,
+  //(21, 126)  Dad's light-pink
+  136, 43, 28,
+  136, 43, 28,
+  //(22, 132)  Dad's all red
+  255, 0, 0,
+  255, 0, 0,
+  //(23, 132)  Dad's all blue
+  0, 0, 255,
+  0, 0, 255,
+  //(23, 132)  Dad's light-blue
+  20, 89, 255,
+  20, 89, 255,
+  //(24, 138)  Dad's rose
+  40, 0, 26,
+  40, 0, 26,
+  //(25, 144) black
+  0, 0, 0
+};
+uint8_t colorSets = (sizeof(myColors) / sizeof(uint8_t)) / 3;
