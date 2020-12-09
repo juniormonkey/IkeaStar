@@ -1,7 +1,0 @@
-.gitignore
-*.swp
-build
-build/*
-neopixel-star/.vscode
-neopixel-star/.vscode/*
-neopixel-star/ignoreIntelliSenseErrors.h
