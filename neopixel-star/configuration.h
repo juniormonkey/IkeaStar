@@ -1,14 +1,23 @@
 // The code below will save you from having to change the pin numbers when you
-//  change which boards to which you will be uploading.
+// change which boards to which you will be uploading.
 //
 // Set pins, depending on if it's an ATtiny85 or a Pro Mini (larger Arduino...)
 #ifdef __AVR_ATtiny85__
+// Zonker's board connects pin 0 to the NeoPixel data wire.
+// NB this pin is labelled as pin 5 on the chip:
+// https://learn.sparkfun.com/tutorials/tiny-avr-programmer-hookup-guide/attiny85-use-hints
 #define PIN_NEOPIXEL 0
-#define PIN_RANDOMSEED 1
-#define PIN_SWITCH   2   // on ATtiny85's, Int 0 = PB2 (chip pin 7)
+// Pin 2 is the only pin on an ATtiny85 with an interrupt.
+// NB this pin is labelled as pin 7 on the chip:
+// https://learn.sparkfun.com/tutorials/tiny-avr-programmer-hookup-guide/attiny85-use-hints
+#define PIN_SWITCH   2
+// The ATtiny85 library doesn't define digitalPinToInterrupt(), so we do that here:
+#define digitalPinToInterrupt(P) ( (P) == 2 ? 0 : -1)
 #else
-#define PIN_RANDOMSEED A1
-#define PIN_SWITCH   2   // on UNO's, Int 0 = pin D2, and Int 1 = pin D3
+// Let's use pin 2 for the switch, labelled as D2 on the board.
+// We can use digitalPinToInterrupt() to get the interrupt.
+#define PIN_SWITCH   2
+// Let's use pin D8 for the data wire to the NeoPixels.
 #define PIN_NEOPIXEL 8
 #endif
 
@@ -77,6 +86,6 @@ const uint8_t interPixelDelay = 60;
 // DEFINE WHAT MODE TO OPERATE HERE...
 const SequenceAdvanceMode advanceMode = ON_BUTTON_PUSH;
 const SequenceSelectionMode selectionMode = SEQUENTIAL;
-LightSequence sequence = BLACK_NOW;
+LightSequence sequence = RAINBOW_CYCLE;
 
 #endif

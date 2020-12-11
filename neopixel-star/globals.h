@@ -4,7 +4,7 @@
 // Some global variables that are cached between loops, and reset on a button press.
 uint8_t baseColor;
 uint16_t nextStep, speed, cycles, cycleLength, randomDelay;
-long pauseEnd;
+unsigned long pauseEnd;
 
 // These are #define instead of function definitions, so that the if condition is
 // inlined wherever they're used, and the inner function is only evaluated when
@@ -17,7 +17,7 @@ long pauseEnd;
 
 // Use this instead of delay(), as a non-blocking alternative.
 void pause(int length) { 
-  long now = millis();
+  unsigned long now = millis();
   pauseEnd = (now > pauseEnd ? now : pauseEnd) + length;
 }
 
