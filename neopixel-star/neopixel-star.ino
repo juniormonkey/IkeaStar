@@ -66,7 +66,7 @@ void setup() {
   SERIAL_PRINTLN(pressed);
 
   // DEFINE THE INITIAL SEQUENCE HERE:
-  sequence = BLACK_NOW;
+  sequence = randomSequence();
 
   reset();
 }
@@ -97,16 +97,20 @@ void loop() {
 
   uint16_t innerStep = cycleLength > 0 ? (nextStep % cycleLength) : nextStep;
 
+  uint16_t volume = analogRead(PIN_MICROPHONE);
+  SERIAL_PRINT("VOLUME: ");
+  SERIAL_PRINTLN(volume);          // debug value
+
   //  *** These are the animations that can be chosen...
   switch (sequence) {
-    case BLACK_NOW:
-      SERIAL_PRINTLN("BLACK_NOW");
-      // (If you select this manually, it looks like the pixels are all off...)
-      setCycles(1);
-      setCycleLength(1);
-      blackNow();
-      pause(500);
-      break;
+    // case BLACK_NOW:
+    //   SERIAL_PRINTLN("BLACK_NOW");
+    //   // (If you select this manually, it looks like the pixels are all off...)
+    //   setCycles(1);
+    //   setCycleLength(1);
+    //   blackNow();
+    //   pause(500);
+    //   break;
     case RAINBOW_CYCLE:
       SERIAL_PRINTLN("RAINBOW_CYCLE");
       // Set pixels to a rainbow, then cycles all pixels thru the rainbow, *twice*
@@ -127,12 +131,12 @@ void loop() {
       SERIAL_PRINTLN("WIPE_COLOR");
       setSpeed(35);
       setCycles(advanceMode == AUTOMATIC ? Entropy.random(1, 6) : 1);
-      setCycleLength(numLeds);
+      setCycleLength(NUM_LEDS);
       setBaseColor(randomColor());  // pick the base color for all pixels.
       if (innerStep == 0) {
         baseColor = randomColor();  // pick a new random color every cycle.
       }
-      wipeColor(innerStep, baseColor, speed); // set all the pixels to that color
+      wipeColor(innerStep, baseColor, speed, volume); // set all the pixels to that color
       break;
     case BLACK_LEAD_WIPE_COLOR:
       SERIAL_PRINTLN("BLACK_LEAD_WIPE_COLOR");
@@ -141,13 +145,13 @@ void loop() {
          (like an eraser that changes the stripe color) */
       setSpeed(15);
       setCycles(advanceMode == AUTOMATIC ? random(2, 7) : 1);
-      setCycleLength(numLeds + 1);
+      setCycleLength(NUM_LEDS + 1);
       setBaseColor(randomColor());  // pick the base color for all pixels.
       if (innerStep == 0) {
         baseColor = randomColor();  // pick a new random color every cycle.
       }
       // Black pixel at the lead, followed by colors, cycles, delay
-      blackLeadWipeColor(innerStep, baseColor);
+      blackLeadWipeColor(innerStep, baseColor, volume);
       break;
     case WHITE_LEAD_WIPE_COLOR:
       SERIAL_PRINTLN("WHITE_LEAD_WIPE_COLOR");
@@ -156,13 +160,13 @@ void loop() {
         (like a meteor passing, with a colored tail). */
       setSpeed(15);
       setCycles(advanceMode == AUTOMATIC ? Entropy.random(2, 7) : 1);
-      setCycleLength(numLeds + 1);
+      setCycleLength(NUM_LEDS + 1);
       setBaseColor(randomColor());  // pick the base color for all pixels.
       if (innerStep == 0) {
         baseColor = randomColor();  // pick a new random color every cycle.
       }
       // White pixel at the lead, followed by colors, cycles, delay
-      whiteLeadWipeColor(innerStep, baseColor);
+      whiteLeadWipeColor(innerStep, baseColor, volume);
       break;
     case WIPE_RANDOM:
       SERIAL_PRINTLN("WIPE_RANDOM");
@@ -171,8 +175,8 @@ void loop() {
         (like an eraser that changes the stripe color) */
       setSpeed(15);
       setCycles(advanceMode == AUTOMATIC ? Entropy.random(1, 6) : 1);
-      setCycleLength(numLeds);
-      wipeRandom(innerStep, interPixelDelay);  // set each pixel to a random color.
+      setCycleLength(NUM_LEDS);
+      wipeRandom(innerStep, INTER_PIXEL_DELAY, volume);  // set each pixel to a random color.
       break;
     case RANDOM_PIXELS:
       SERIAL_PRINTLN("RANDOM_PIXELS");
@@ -180,8 +184,14 @@ void loop() {
       setSpeed(500);  // Delay between changes.
       setCycles(1);
       // How many pixel changes? Pick a large range (low, high)
-      setCycleLength(Entropy.random(20, 65));
-      randomPixels(speed);
+      setCycleLength(NUM_LEDS + Entropy.random(20, 65));
+      if (innerStep < NUM_LEDS) {
+        // First do a random wipe, to make sure all pixels are on
+        wipeRandom(innerStep, INTER_PIXEL_DELAY, volume);
+      } else {
+        // Then, set pixels at random.
+        randomPixels(speed);
+      }
       break;
     case CYCLE_PAIRS:
       SERIAL_PRINTLN("CYCLE_PAIRS");
@@ -191,9 +201,9 @@ void loop() {
          one color, and the "bottom" with another color.  */
       setSpeed(15);
       setCycles(advanceMode == AUTOMATIC ? Entropy.random(1, 6) : 1);
-      setCycleLength(numLeds / 2);
+      setCycleLength(NUM_LEDS / 2);
       setRandomDelay(2000 * (Entropy.random(1, 6)) ); //  Add a pause to enjoy the effect
-      cyclePairs(innerStep, randomDelay);
+      cyclePairs(innerStep, randomDelay, volume);
       break;
     default:
       // NUM_SEQUENCES is not a real value.
@@ -203,7 +213,7 @@ void loop() {
   nextStep++;
   if (nextStep >= cycles * cycleLength) {
     if (advanceMode == AUTOMATIC) {
-      pause(interSequenceDelay);  //  Add a pause to enjoy the effect
+      pause(INTER_SEQUENCE_DELAY);  //  Add a pause to enjoy the effect
       pressed = true;
     }
   }

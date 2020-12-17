@@ -11,6 +11,8 @@
 // NB this pin is labelled as pin 7 on the chip:
 // https://learn.sparkfun.com/tutorials/tiny-avr-programmer-hookup-guide/attiny85-use-hints
 #define PIN_SWITCH   2
+// TODO: analog pin?
+#define PIN_MICROPHONE ?
 // The ATtiny85 library doesn't define digitalPinToInterrupt(), so we do that here:
 #define digitalPinToInterrupt(P) ( (P) == 2 ? 0 : -1)
 #else
@@ -19,9 +21,11 @@
 #define PIN_SWITCH   2
 // Let's use pin D8 for the data wire to the NeoPixels.
 #define PIN_NEOPIXEL 8
+// Let's use pin A0 for the microphone.
+#define PIN_MICROPHONE A0
 #endif
 
-//#define DEBUG
+#define DEBUG
 
 #ifdef DEBUG
 #define SERIAL_PRINT(X) Serial.print(X);
@@ -49,7 +53,7 @@ enum SequenceSelectionMode {
 };
 
 enum LightSequence {
-  BLACK_NOW,
+//  BLACK_NOW,
   RAINBOW_CYCLE,
   RAINBOW,
   WIPE_COLOR,
@@ -64,7 +68,7 @@ enum LightSequence {
 // How many neopixels in the string?
 // My IKEA Star project uses 14 neopixels...
 // do you use more or less in your project?
-const uint8_t numLeds = 14;
+#define numLeds 14
 
 // Parameter 1 = number of pixels in strip
 // Parameter 2 = pin number (most are valid)
@@ -73,13 +77,13 @@ const uint8_t numLeds = 14;
 // NEO_GRB Pixels are wired for GRB bitstream
 // NEO_KHZ400 400 KHz bitstream (e.g. FLORA pixels)
 // NEO_KHZ800 800 KHz bitstream (e.g. High Density LED strip)
-Adafruit_NeoPixel strip = Adafruit_NeoPixel(numLeds, PIN_NEOPIXEL, NEO_GRB + NEO_KHZ800);
+Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUM_LEDS, PIN_NEOPIXEL, NEO_GRB + NEO_KHZ800);
 
 // delay between different sequences
-const uint16_t interSequenceDelay = 1500;
+#define INTER_SEQUENCE_DELAY 1500
 
 // inter-pixel delay, so you can see the wipe & fade patterns move quickly
-const uint8_t interPixelDelay = 60;
+#define INTER_PIXEL_DELAY 60
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
