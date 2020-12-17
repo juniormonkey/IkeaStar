@@ -68,7 +68,7 @@ enum LightSequence {
 // How many neopixels in the string?
 // My IKEA Star project uses 14 neopixels...
 // do you use more or less in your project?
-#define numLeds 14
+#define NUM_LEDS 14
 
 // Parameter 1 = number of pixels in strip
 // Parameter 2 = pin number (most are valid)
