@@ -1,7 +1,10 @@
 #ifndef globals_h
 #define globals_h
 
+uint32_t colors[NUM_LEDS];
+
 // Some global variables that are cached between loops, and reset on a button press.
+LightSequence sequence;
 uint8_t baseColor;
 uint16_t nextStep, speed, cycles, cycleLength, randomDelay;
 unsigned long pauseEnd;
@@ -16,7 +19,7 @@ unsigned long pauseEnd;
 #define setRandomDelay(L) if (randomDelay <= 0) { randomDelay = (L); }
 
 // Use this instead of delay(), as a non-blocking alternative.
-void pause(int length) { 
+void pause(uint16_t length) { 
   unsigned long now = millis();
   pauseEnd = (now > pauseEnd ? now : pauseEnd) + length;
 }

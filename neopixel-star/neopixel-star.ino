@@ -77,23 +77,34 @@ void setup() {
 uint16_t volumes[512];
 #endif
 
+unsigned long nextTick = 0;
+
 void loop() {
+  // Slow the flicker a bit.
+  if (millis() < nextTick) {
+    if (!pressed) { return; }
+  }
+  nextTick = 100 * (millis() / 100 + 1);
+
+  uint16_t volume = analogRead(PIN_MICROPHONE);
+  for (uint8_t led = 0; led < NUM_LEDS; ++led) {
+    strip.setPixelColor(led, Normalize(colors[led], volume));
+    strip.show();
+  }
+
   // Instead of using the blocking delay(), set a delay using the pause()
   // method in globals.h; this way the loop will continue to react to button
   // presses during the delay.
-  if (pauseEnd > millis()) {
+  if (millis() < pauseEnd) {
     if (!pressed) { return; }
   }
 
-  if ((advanceMode == ON_BUTTON_PUSH && pressed) || advanceMode == AUTOMATIC) {
-    switch (selectionMode) {
-      case SEQUENTIAL:
-        sequence = static_cast<LightSequence>((sequence + 1) % NUM_SEQUENCES);
-        break;
-      case RANDOM:
-        sequence = randomSequence();
-        break;
-    }
+  if (pressed) {
+    #ifdef RANDOM_SEQUENCE
+      sequence = randomSequence();
+    #else
+      sequence = static_cast<LightSequence>((sequence + 1) % NUM_SEQUENCES);
+    #endif
     pressed = false;
     reset();
 
@@ -102,19 +113,6 @@ void loop() {
   }
 
   uint16_t innerStep = cycleLength > 0 ? (nextStep % cycleLength) : nextStep;
-
-  uint16_t volume = analogRead(PIN_MICROPHONE);
-  #ifdef DEBUG
-  volumes[innerStep] = volume;
-  if (innerStep == 0) {
-    SERIAL_PRINT("VOLUME: [");
-    for (uint16_t i = 0; i < cycleLength; ++i) {
-      SERIAL_PRINT(volumes[i]);
-      if (i < cycleLength - 1) { SERIAL_PRINT(", "); }
-    }
-    SERIAL_PRINTLN("]");
-  }
-  #endif
 
   //  *** These are the animations that can be chosen...
   switch (sequence) {
@@ -130,22 +128,34 @@ void loop() {
       SERIAL_PRINTLNIF(innerStep == 0, "RAINBOW_CYCLE");
       // Set pixels to a rainbow, then cycles all pixels thru the rainbow, *twice*
       setSpeed(Entropy.random(10, 75)); // How slow should color shift? Higher = slower
-      setCycles(advanceMode == AUTOMATIC ? Entropy.random(2, 5) : 1);
+      #ifdef ADVANCE_AUTOMATICALLY
+      setCycles(Entropy.random(2, 5))
+      #else
+      setCycles(1)
+      #endif
       setCycleLength(256 * 2);
       rainbowCycle(innerStep, speed, volume);
       break;
     case RAINBOW:
       SERIAL_PRINTLNIF(innerStep == 0, "RAINBOW");
-      setSpeed(Entropy.random(10, 75));  // How slow should the colors shift? Higher number = slower
-      setCycles(advanceMode == AUTOMATIC ? Entropy.random(2, 4) : 1);
-      setCycleLength(256);
       // Set all pixels to color, then cycles the pixels through the rainbow once
+      setSpeed(Entropy.random(10, 75));  // How slow should the colors shift? Higher number = slower
+      #ifdef ADVANCE_AUTOMATICALLY
+      setCycles(Entropy.random(2, 4))
+      #else
+      setCycles(1)
+      #endif
+      setCycleLength(256);
       rainbow(innerStep, speed, volume);
       break;
     case WIPE_COLOR:
       SERIAL_PRINTLNIF(innerStep == 0, "WIPE_COLOR");
       setSpeed(35);
-      setCycles(advanceMode == AUTOMATIC ? Entropy.random(1, 6) : 1);
+      #ifdef ADVANCE_AUTOMATICALLY
+      setCycles(Entropy.random(1, 6))
+      #else
+      setCycles(1)
+      #endif
       setCycleLength(NUM_LEDS);
       setBaseColor(randomColor());  // pick the base color for all pixels.
       if (innerStep == 0) {
@@ -159,14 +169,18 @@ void loop() {
          a color, but it leads the wipe with a dark, unlit pixel
          (like an eraser that changes the stripe color) */
       setSpeed(15);
-      setCycles(advanceMode == AUTOMATIC ? random(2, 7) : 1);
+      #ifdef ADVANCE_AUTOMATICALLY
+      setCycles(Entropy.random(2, 7))
+      #else
+      setCycles(1)
+      #endif
       setCycleLength(NUM_LEDS + 1);
       setBaseColor(randomColor());  // pick the base color for all pixels.
       if (innerStep == 0) {
         baseColor = randomColor();  // pick a new random color every cycle.
       }
       // Black pixel at the lead, followed by colors, cycles, delay
-      blackLeadWipeColor(innerStep, baseColor, volume);
+      wipeColorWithLead(innerStep, 0, 0, 0, baseColor, volume);
       break;
     case WHITE_LEAD_WIPE_COLOR:
       SERIAL_PRINTLNIF(innerStep == 0, "WHITE_LEAD_WIPE_COLOR");
@@ -174,14 +188,18 @@ void loop() {
         color, but it leads the wipe with a bright, white color
         (like a meteor passing, with a colored tail). */
       setSpeed(15);
-      setCycles(advanceMode == AUTOMATIC ? Entropy.random(2, 7) : 1);
+      #ifdef ADVANCE_AUTOMATICALLY
+      setCycles(Entropy.random(2, 7))
+      #else
+      setCycles(1)
+      #endif
       setCycleLength(NUM_LEDS + 1);
       setBaseColor(randomColor());  // pick the base color for all pixels.
       if (innerStep == 0) {
         baseColor = randomColor();  // pick a new random color every cycle.
       }
       // White pixel at the lead, followed by colors, cycles, delay
-      whiteLeadWipeColor(innerStep, baseColor, volume);
+      wipeColorWithLead(innerStep, 235, 235, 235, baseColor, volume);
       break;
     case WIPE_RANDOM:
       SERIAL_PRINTLNIF(innerStep == 0, "WIPE_RANDOM");
@@ -189,7 +207,11 @@ void loop() {
         random color, but it leads the wipe with a dark, unlit pixel
         (like an eraser that changes the stripe color) */
       setSpeed(15);
-      setCycles(advanceMode == AUTOMATIC ? Entropy.random(1, 6) : 1);
+      #ifdef ADVANCE_AUTOMATICALLY
+      setCycles(Entropy.random(1, 6))
+      #else
+      setCycles(1)
+      #endif
       setCycleLength(NUM_LEDS);
       wipeRandom(innerStep, INTER_PIXEL_DELAY, volume);  // set each pixel to a random color.
       break;
@@ -215,7 +237,11 @@ void loop() {
          side of that arm. This sequence tries to paint the "top" with
          one color, and the "bottom" with another color.  */
       setSpeed(15);
-      setCycles(advanceMode == AUTOMATIC ? Entropy.random(1, 6) : 1);
+      #ifdef ADVANCE_AUTOMATICALLY
+      setCycles(Entropy.random(1, 6))
+      #else
+      setCycles(1)
+      #endif
       setCycleLength(NUM_LEDS / 2);
       setRandomDelay(2000 * (Entropy.random(1, 6)) ); //  Add a pause to enjoy the effect
       cyclePairs(innerStep, randomDelay, volume);
@@ -226,10 +252,13 @@ void loop() {
   }
 
   nextStep++;
+  SERIAL_PRINT("nextStep=");
+  SERIAL_PRINTLN(nextStep);
+  
+  #ifdef ADVANCE_AUTOMATICALLY
   if (nextStep >= cycles * cycleLength) {
-    if (advanceMode == AUTOMATIC) {
-      pause(INTER_SEQUENCE_DELAY);  //  Add a pause to enjoy the effect
-      pressed = true;
-    }
+    pause(INTER_SEQUENCE_DELAY);  //  Add a pause to enjoy the effect
+    pressed = true;
   }
+  #endif
 }

@@ -20,10 +20,11 @@ uint32_t Normalize(uint8_t red, uint8_t green, uint8_t blue, uint16_t volume) {
       volume > MAX_VOLUME 
       ? MAX_COLOR
       : volume / (MAX_VOLUME / MAX_COLOR));
+  uint8_t value = (hsv[2] * MAX_COLOR / 2) + (hsv[2] * maxValue / 2);
   return strip.gamma32(
              strip.ColorHSV((uint16_t)(hsv[0] * MAX_HUE),
                             (uint8_t)(hsv[1] * MAX_COLOR),
-                            (uint8_t)(hsv[2] * maxValue)));
+                            value));
 }
 
 uint32_t Normalize(uint32_t color, uint16_t volume) {
@@ -48,8 +49,9 @@ uint32_t Wheel(byte WheelPos) {
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 void blackNow() {
+  strip.fill(0);
   for (uint8_t i = 0; i < NUM_LEDS; i++) {
-    strip.setPixelColor(i, 0);
+    colors[i] = 0;
   }
   strip.show();
 }
@@ -58,7 +60,8 @@ void blackNow() {
 //   ** Original Adafruit example code
 void rainbow(uint16_t color, uint16_t wait, uint16_t volume) {
   for (uint16_t pixel = 0; pixel < NUM_LEDS; ++pixel) {
-    strip.setPixelColor(pixel, Normalize(Wheel((pixel + color) & 255), volume));
+    colors[pixel] = Wheel((pixel + color) & 255);
+    strip.setPixelColor(pixel, Normalize(colors[pixel], volume));
   }
   strip.show();
   pause(wait);
@@ -71,7 +74,8 @@ void rainbowCycle(uint16_t color, uint8_t speed, uint16_t volume) {
   // then cycles all the pixels through their respective rainbows, twice.
   // add some delay to slow down the cycle of the colors.
   for (uint16_t pixel = 0; pixel < NUM_LEDS; ++pixel) {
-    strip.setPixelColor(pixel, Normalize(Wheel(((pixel * 256 / NUM_LEDS) + color) & 255), volume));
+    colors[pixel] = Wheel(((pixel * 256 / NUM_LEDS) + color) & 255);
+    strip.setPixelColor(pixel, Normalize(colors[pixel], volume));
   }
   strip.show();
   pause(speed);
@@ -82,20 +86,22 @@ void randomPixels(uint16_t speed, uint16_t volume) {
   uint8_t i = Entropy.random(0, NUM_LEDS);
   uint8_t myBase = randomColor();
   // SERIAL_PRINTLN(myBase);
-  uint8_t red = myColors[myBase];
-  uint8_t green = myColors[myBase + 1];
-  uint8_t blue = myColors[myBase + 2];
-  strip.setPixelColor(i, Normalize(red, green, blue, volume));
+  colors[i] = strip.Color(
+      myColors[myBase], 
+      myColors[myBase + 1], 
+      myColors[myBase + 2]);
+  strip.setPixelColor(i, Normalize(colors[i], volume));
   strip.show();
   pause(speed);
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 void wipeColor(uint16_t nextStep, uint8_t color, uint16_t wait, uint16_t volume) {
-  uint8_t red = myColors[color];
-  uint8_t green = myColors[color + 1];
-  uint8_t blue = myColors[color + 2];
-  strip.setPixelColor(nextStep, Normalize(red, green, blue, volume));
+  colors[nextStep] = strip.Color(
+      myColors[color], 
+      myColors[color + 1], 
+      myColors[color + 2]);
+  strip.setPixelColor(nextStep, Normalize(colors[nextStep], volume));
   strip.show();
   pause(INTER_PIXEL_DELAY);
   if (nextStep >= cycleLength - 1) {
@@ -114,15 +120,22 @@ void cyclePairs(uint16_t nextStep, uint16_t wait, uint16_t volume) {
     }
   }
 
-  uint8_t cr = myColors[c];
-  uint8_t cg = myColors[c + 1];
-  uint8_t cb = myColors[c + 2];
-  uint8_t ar = myColors[d];
-  uint8_t ag = myColors[d + 1];
-  uint8_t ab = myColors[d + 2];
-  strip.setPixelColor(2 * nextStep, Normalize(cr, cg, cb, volume)); //set pixel to the first color
-  strip.setPixelColor(2 * nextStep + 1, Normalize(ar, ag, ab, volume)); //set next pixel to 2nd color
+  // set pixel to the first color
+  uint8_t pixel1 = 2 * nextStep;
+  colors[pixel1] = strip.Color(
+      myColors[c],
+      myColors[c + 1],
+      myColors[c + 2]);
+  strip.setPixelColor(pixel1, Normalize(colors[pixel1], volume));
 
+  // set next pixel to 2nd color
+  uint8_t pixel2 = pixel1 + 1;
+  colors[pixel2] = strip.Color(
+      myColors[d],
+      myColors[d + 1],
+      myColors[d + 2]);
+  strip.setPixelColor(pixel2, Normalize(colors[pixel2], volume));
+  
   strip.show();
 
   if (nextStep == cycleLength - 1) {
@@ -131,42 +144,25 @@ void cyclePairs(uint16_t nextStep, uint16_t wait, uint16_t volume) {
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-void blackLeadWipeColor(uint16_t nextStep, uint8_t color, uint16_t volume) {
+void wipeColorWithLead(uint16_t nextStep,
+                       uint8_t leadColorRed,
+                       uint8_t leadColorGreen,
+                       uint8_t leadColorBlue,
+                       uint8_t color,
+                       uint16_t volume) {
   /* This sequence 'wipes' all the pixels, one at a time, with a color,
-      but it leads the wipe with a dark, unlit pixel (like an eraser
-      that changes the stripe color). */
+      but it leads the wipe with a given color. */
+  // The brightness of the pixel depends on 'volume'.
   if (nextStep > 0) {
-    uint8_t red = myColors[color];
-    uint8_t green = myColors[color + 1];
-    uint8_t blue = myColors[color + 2];
-    strip.setPixelColor(nextStep - 1, Normalize(red, green, blue, volume));
+    colors[nextStep - 1] = strip.Color(
+        myColors[color],
+        myColors[color + 1],
+        myColors[color + 2]);
+    strip.setPixelColor(nextStep - 1, Normalize(colors[nextStep - 1], volume));
   }
   if (nextStep < NUM_LEDS) {
-    strip.setPixelColor(nextStep, 0);
-  }
-  strip.show();
-  pause(INTER_PIXEL_DELAY);
-  if (nextStep >= cycleLength - 1) {
-    uint16_t interWipeDelay = (500 * random(2, 8));
-    pause(interWipeDelay);
-  }
-}
-
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-void whiteLeadWipeColor(uint16_t nextStep, uint8_t color, uint16_t volume) {
-  /* This sequence 'wipes' all the pixels, one at a time, with a color,
-      but it leads the wipe with a bright, white color (like a meteor
-     passing, with a colored tail). */
-     // The brightness of the pixel depends on 'volume'.
-  if (nextStep > 0) {
-    uint8_t red = myColors[color];
-    uint8_t green = myColors[color + 1];
-    uint8_t blue = myColors[color + 2];
-    strip.setPixelColor(nextStep - 1, Normalize(red, green, blue, volume));
-  }
-  if (nextStep < NUM_LEDS) {
-    uint8_t white = 235 * volume / 1024;
-    strip.setPixelColor(nextStep, white, white, white);
+    colors[nextStep] = strip.Color(leadColorRed, leadColorGreen, leadColorBlue);
+    strip.setPixelColor(nextStep, Normalize(colors[nextStep], volume));
   }
   strip.show();
   pause(INTER_PIXEL_DELAY);
@@ -180,10 +176,11 @@ void whiteLeadWipeColor(uint16_t nextStep, uint8_t color, uint16_t volume) {
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 void wipeRandom(uint16_t nextStep, uint16_t wait, uint16_t volume) {
   uint8_t color = randomColor();
-  uint8_t red = myColors[color];
-  uint8_t green = myColors[color + 1];
-  uint8_t blue = myColors[color + 2];
-  strip.setPixelColor(nextStep, Normalize(red, green, blue, volume));
+  colors[nextStep] = strip.Color(
+      myColors[color],
+      myColors[color + 1],
+      myColors[color + 2]);
+  strip.setPixelColor(nextStep, Normalize(colors[nextStep], volume));
   strip.show();
   pause(INTER_PIXEL_DELAY);
   if (nextStep >= cycleLength - 1) {

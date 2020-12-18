@@ -44,16 +44,6 @@
 // (and check out the Adafruit Arduino Metro Mini! https://www.adafruit.com/product/2590 )
 #include <Adafruit_NeoPixel.h>
 
-enum SequenceAdvanceMode {
-  AUTOMATIC,
-  ON_BUTTON_PUSH
-};
-
-enum SequenceSelectionMode {
-  SEQUENTIAL,
-  RANDOM
-};
-
 enum LightSequence {
 //  BLACK_NOW,
   RAINBOW_CYCLE,
@@ -90,8 +80,11 @@ Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUM_LEDS, PIN_NEOPIXEL, NEO_GRB + NE
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 // DEFINE WHAT MODE TO OPERATE HERE...
-const SequenceAdvanceMode advanceMode = ON_BUTTON_PUSH;
-const SequenceSelectionMode selectionMode = SEQUENTIAL;
-LightSequence sequence = RAINBOW_CYCLE;
+
+// Uncomment this to advance sequences automatically; otherwise, wait for button push
+// #define ADVANCE_AUTOMATICALLY
+
+// Uncomment this to choose sequences at random; otherwise, choose them in order
+// #define RANDOM_SEQUENCE
 
 #endif
