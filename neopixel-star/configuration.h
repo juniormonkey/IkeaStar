@@ -12,7 +12,7 @@
 // https://learn.sparkfun.com/tutorials/tiny-avr-programmer-hookup-guide/attiny85-use-hints
 #define PIN_SWITCH   2
 // TODO: analog pin?
-#define PIN_MICROPHONE ?
+#define PIN_MICROPHONE A1
 // The ATtiny85 library doesn't define digitalPinToInterrupt(), so we do that here:
 #define digitalPinToInterrupt(P) ( (P) == 2 ? 0 : -1)
 #else
@@ -25,14 +25,16 @@
 #define PIN_MICROPHONE A0
 #endif
 
-#define DEBUG
+//#define DEBUG
 
 #ifdef DEBUG
 #define SERIAL_PRINT(X) Serial.print(X);
 #define SERIAL_PRINTLN(X) Serial.println(X);
+#define SERIAL_PRINTLNIF(X, Y) if(X) { Serial.println(Y); } 
 #else
 #define SERIAL_PRINT(X)
 #define SERIAL_PRINTLN(X)
+#define SERIAL_PRINTLNIF(X, Y)
 #endif
 
 #ifndef configuration_h

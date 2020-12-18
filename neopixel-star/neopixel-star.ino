@@ -61,6 +61,8 @@ void setup() {
   // on UNO's, Int 0 = pin D2, and Int 1 = pin D3
   // on ATtiny85, Int 0 = pin PB2 (chip pin 7)
 
+  analogReference(DEFAULT);
+
   pressed = false;
   SERIAL_PRINT("pressed? ");
   SERIAL_PRINTLN(pressed);
@@ -70,6 +72,10 @@ void setup() {
 
   reset();
 }
+
+#ifdef DEBUG
+uint16_t volumes[512];
+#endif
 
 void loop() {
   // Instead of using the blocking delay(), set a delay using the pause()
@@ -98,13 +104,22 @@ void loop() {
   uint16_t innerStep = cycleLength > 0 ? (nextStep % cycleLength) : nextStep;
 
   uint16_t volume = analogRead(PIN_MICROPHONE);
-  SERIAL_PRINT("VOLUME: ");
-  SERIAL_PRINTLN(volume);          // debug value
+  #ifdef DEBUG
+  volumes[innerStep] = volume;
+  if (innerStep == 0) {
+    SERIAL_PRINT("VOLUME: [");
+    for (uint16_t i = 0; i < cycleLength; ++i) {
+      SERIAL_PRINT(volumes[i]);
+      if (i < cycleLength - 1) { SERIAL_PRINT(", "); }
+    }
+    SERIAL_PRINTLN("]");
+  }
+  #endif
 
   //  *** These are the animations that can be chosen...
   switch (sequence) {
     // case BLACK_NOW:
-    //   SERIAL_PRINTLN("BLACK_NOW");
+    //   SERIAL_PRINTLNIF(innerStep == 0, "BLACK_NOW");
     //   // (If you select this manually, it looks like the pixels are all off...)
     //   setCycles(1);
     //   setCycleLength(1);
@@ -112,23 +127,23 @@ void loop() {
     //   pause(500);
     //   break;
     case RAINBOW_CYCLE:
-      SERIAL_PRINTLN("RAINBOW_CYCLE");
+      SERIAL_PRINTLNIF(innerStep == 0, "RAINBOW_CYCLE");
       // Set pixels to a rainbow, then cycles all pixels thru the rainbow, *twice*
       setSpeed(Entropy.random(10, 75)); // How slow should color shift? Higher = slower
       setCycles(advanceMode == AUTOMATIC ? Entropy.random(2, 5) : 1);
       setCycleLength(256 * 2);
-      rainbowCycle(innerStep, speed);
+      rainbowCycle(innerStep, speed, volume);
       break;
     case RAINBOW:
-      SERIAL_PRINTLN("RAINBOW");
+      SERIAL_PRINTLNIF(innerStep == 0, "RAINBOW");
       setSpeed(Entropy.random(10, 75));  // How slow should the colors shift? Higher number = slower
       setCycles(advanceMode == AUTOMATIC ? Entropy.random(2, 4) : 1);
       setCycleLength(256);
       // Set all pixels to color, then cycles the pixels through the rainbow once
-      rainbow(innerStep, speed);
+      rainbow(innerStep, speed, volume);
       break;
     case WIPE_COLOR:
-      SERIAL_PRINTLN("WIPE_COLOR");
+      SERIAL_PRINTLNIF(innerStep == 0, "WIPE_COLOR");
       setSpeed(35);
       setCycles(advanceMode == AUTOMATIC ? Entropy.random(1, 6) : 1);
       setCycleLength(NUM_LEDS);
@@ -139,7 +154,7 @@ void loop() {
       wipeColor(innerStep, baseColor, speed, volume); // set all the pixels to that color
       break;
     case BLACK_LEAD_WIPE_COLOR:
-      SERIAL_PRINTLN("BLACK_LEAD_WIPE_COLOR");
+      SERIAL_PRINTLNIF(innerStep == 0, "BLACK_LEAD_WIPE_COLOR");
       /* This sequence 'wipes' all the pixels, one at a time, with
          a color, but it leads the wipe with a dark, unlit pixel
          (like an eraser that changes the stripe color) */
@@ -154,7 +169,7 @@ void loop() {
       blackLeadWipeColor(innerStep, baseColor, volume);
       break;
     case WHITE_LEAD_WIPE_COLOR:
-      SERIAL_PRINTLN("WHITE_LEAD_WIPE_COLOR");
+      SERIAL_PRINTLNIF(innerStep == 0, "WHITE_LEAD_WIPE_COLOR");
       /* This sequence 'wipes' all the pixels, one at a time, with a
         color, but it leads the wipe with a bright, white color
         (like a meteor passing, with a colored tail). */
@@ -169,7 +184,7 @@ void loop() {
       whiteLeadWipeColor(innerStep, baseColor, volume);
       break;
     case WIPE_RANDOM:
-      SERIAL_PRINTLN("WIPE_RANDOM");
+      SERIAL_PRINTLNIF(innerStep == 0, "WIPE_RANDOM");
       /* This sequence 'wipes' all the pixels, one at a time, with a
         random color, but it leads the wipe with a dark, unlit pixel
         (like an eraser that changes the stripe color) */
@@ -179,7 +194,7 @@ void loop() {
       wipeRandom(innerStep, INTER_PIXEL_DELAY, volume);  // set each pixel to a random color.
       break;
     case RANDOM_PIXELS:
-      SERIAL_PRINTLN("RANDOM_PIXELS");
+      SERIAL_PRINTLNIF(innerStep == 0, "RANDOM_PIXELS");
       // Pick pixels at random, set each pixel to a random color
       setSpeed(500);  // Delay between changes.
       setCycles(1);
@@ -190,11 +205,11 @@ void loop() {
         wipeRandom(innerStep, INTER_PIXEL_DELAY, volume);
       } else {
         // Then, set pixels at random.
-        randomPixels(speed);
+        randomPixels(speed, volume);
       }
       break;
     case CYCLE_PAIRS:
-      SERIAL_PRINTLN("CYCLE_PAIRS");
+      SERIAL_PRINTLNIF(innerStep == 0, "CYCLE_PAIRS");
       /* The way the IKEA Star is wired, one pixel is on the "top/left"
          side of each arm, and the next pixel is on the "bottom/right
          side of that arm. This sequence tries to paint the "top" with
