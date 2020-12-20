@@ -4,7 +4,7 @@
 // https://github.com/pmjdebruijn/Arduino-Entropy-Library
 #include <Entropy.h>
 
-#include "configuration.h"
+#include "light_sequence.h"
 
 // what was the last sequence chosen at random? (to avoid repeats)
 LightSequence previousSequence = BLACK_LEAD_WIPE_COLOR;

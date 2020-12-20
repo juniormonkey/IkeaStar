@@ -1,7 +1,12 @@
+#ifndef COLOR_UTILS_H
+#define COLOR_UTILS_H
+
 // From https://gist.github.com/postspectacular/2a4a8db092011c6743a7
 
 // HSV->RGB conversion based on GLSL version
 // expects hsv channels defined in 0.0 .. 1.0 interval
+
+float fract(float x) { return x - int(x); }
 
 float mix(float a, float b, float t) { return a + (b - a) * t; }
 
@@ -24,6 +29,15 @@ float* rgb2hsv(float r, float g, float b, float* hsv) {
   return hsv;
 }
 
+// The tinyNeoPixel library doesn't have a ColorHSV() implementation, so we
+// need this conversion too.
+float* hsv2rgb(float h, float s, float b, float* rgb) {
+  rgb[0] = b * mix(1.0, constrain(abs(fract(h + 1.0) * 6.0 - 3.0) - 1.0, 0.0, 1.0), s);
+  rgb[1] = b * mix(1.0, constrain(abs(fract(h + 0.6666666) * 6.0 - 3.0) - 1.0, 0.0, 1.0), s);
+  rgb[2] = b * mix(1.0, constrain(abs(fract(h + 0.3333333) * 6.0 - 3.0) - 1.0, 0.0, 1.0), s);
+  return rgb;
+}
+
 // From https://learn.adafruit.com/multi-tasking-the-arduino-part-3/utility-functions
 
 // Returns the Red component of a 32-bit color
@@ -40,3 +54,5 @@ uint8_t Green(uint32_t color) {
 uint8_t Blue(uint32_t color) {
   return color & 0xFF;
 }
+
+#endif
