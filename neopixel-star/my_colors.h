@@ -68,6 +68,19 @@ uint8_t myColors[] = {
   //(18, 108)  lavender
   146, 104, 182,
   89, 71, 106,
+#ifdef CHRISTMAS_COLORS
+  // https://www.schemecolor.com/christmas-hex-color-codes.php
+  // Cal Poly Pomona Green
+  22, 91, 51,
+  // Dark Spring Green
+  20, 107, 58,	
+  // Orange-Yellow
+  248, 178, 41,
+  // Cinnabar
+  234, 70, 48,
+  // Firebrick
+  187, 37, 40,
+#endif
 #ifdef DADS_COLORS
   //(19, 114)  Dad's pink
   82, 12, 31,

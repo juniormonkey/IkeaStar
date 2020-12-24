@@ -6,6 +6,7 @@
 #include "globals.h"
 #include "hardware.h"
 
+#define MIN_VOLUME 200.0
 #define MAX_VOLUME 320.0
 #define MAX_HUE 65535.0
 #define MAX_COLOR 255.0
@@ -18,15 +19,16 @@ uint32_t Normalize(uint32_t color, uint16_t volume) {
           ((float) Green(color)) / MAX_COLOR,
           ((float) Blue(color)) / MAX_COLOR,
           hsv);
-  uint8_t maxValue = (
+  uint8_t volumeAdjustment = (
       volume > MAX_VOLUME 
       ? MAX_COLOR
-      : volume / (MAX_VOLUME / MAX_COLOR));
-  uint8_t value = (hsv[2] * MAX_COLOR / 2) + (hsv[2] * maxValue / 2);
+      : (volume - MIN_VOLUME) / ((MAX_VOLUME - MIN_VOLUME) / MAX_COLOR));
+  uint8_t saturation = (hsv[1] * MAX_COLOR / 2) + (hsv[1] * volumeAdjustment / 2);
+  uint8_t value = (hsv[2] * MAX_COLOR / 3) + (2 * hsv[2] * volumeAdjustment / 3);
   
   #ifdef __AVR_ATtiny85__
   float rgb[3];
-  hsv2rgb(hsv[0], hsv[1], (float)value / MAX_COLOR, rgb);
+  hsv2rgb(hsv[0], (float)saturation / MAX_COLOR, (float)value / MAX_COLOR, rgb);
   return strip.Color((uint8_t)(rgb[0] * MAX_COLOR),
                      (uint8_t)(rgb[1] * MAX_COLOR),
                      (uint8_t)(rgb[2] * MAX_COLOR));

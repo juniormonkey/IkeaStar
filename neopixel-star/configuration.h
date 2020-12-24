@@ -24,16 +24,17 @@
 // DEFINE WHAT MODE TO OPERATE HERE...
 
 // Uncomment this to advance sequences automatically; otherwise, wait for button push
-// #define ADVANCE_AUTOMATICALLY
+#define ADVANCE_AUTOMATICALLY
 
 // Uncomment this to choose sequences at random; otherwise, choose them in order
-// #define RANDOM_SEQUENCE
+#define RANDOM_SEQUENCE
 
 // Uncomment these to enable features. Not all features will fit on an ATTiny85.
-#define MICROPHONE
-//#define RAINBOW_PATTERNS
+//#define MICROPHONE
+#define RAINBOW_PATTERNS
 #define WIPE_PATTERNS
-//#define RANDOM_PATTERNS
-//#define DADS_COLORS
+#define RANDOM_PATTERNS
+#define CHRISTMAS_COLORS
+#define DADS_COLORS
 
 #endif
