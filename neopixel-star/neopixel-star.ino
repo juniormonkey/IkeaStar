@@ -82,11 +82,13 @@ void loop() {
 
   #ifdef MICROPHONE
   uint16_t volume = analogRead(PIN_MICROPHONE);
+  #else
+  uint16_t volume = 1;
+  #endif
   for (uint8_t led = 0; led < NUM_LEDS; ++led) {
     strip.setPixelColor(led, Normalize(colors[led], volume));
     strip.show();
   }
-  #endif
 
   // Instead of using the blocking delay(), set a delay using the pause()
   // method in globals.h; this way the loop will continue to react to button
@@ -182,7 +184,7 @@ void loop() {
     case RANDOM_PIXELS:
       SERIAL_PRINTLNIF(innerStep == 0, "RANDOM_PIXELS");
       // Pick pixels at random, set each pixel to a random color
-      setCycles(1);
+      cycles = 1;
       // How many pixel changes? Pick a large range (low, high)
       setCycleLength(NUM_LEDS + Entropy.random(20, 65));
       if (innerStep < NUM_LEDS) {
@@ -213,8 +215,10 @@ void loop() {
   SERIAL_PRINTLN(nextStep);
   
   #ifdef ADVANCE_AUTOMATICALLY
+  if (innerStep >= cycleLength) {
+    pause(INTER_SEQUENCE_DELAY);  // Add a pause to enjoy the effect
+  }
   if (nextStep >= cycles * cycleLength) {
-    pause(INTER_SEQUENCE_DELAY);  //  Add a pause to enjoy the effect
     pressed = true;
   }
   #endif

@@ -10,12 +10,15 @@
 LightSequence previousSequence = BLACK_LEAD_WIPE_COLOR;
 
 LightSequence randomSequence() {
+  SERIAL_PRINTLN("Selecting random sequence: ")
   uint8_t i = 0;
   LightSequence newSequence = previousSequence;
   do {
-    sequence = static_cast<LightSequence>(Entropy.random(1, NUM_SEQUENCES));
+    newSequence = static_cast<LightSequence>(Entropy.random(1, NUM_SEQUENCES));
+    SERIAL_PRINT("random sequence =");
+    SERIAL_PRINTLN(newSequence);
     ++i;
-  } while (i < 5 && sequence == previousSequence);
+  } while (i < 5 && newSequence == previousSequence);
   previousSequence = newSequence;
   return newSequence;
 }
