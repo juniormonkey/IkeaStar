@@ -13,7 +13,7 @@
 // Pin 2, or INT0, is the only pin on an ATtiny85 with an interrupt.
 // NB this pin is labelled as pin 7 on the chip:
 // https://learn.sparkfun.com/tutorials/tiny-avr-programmer-hookup-guide/attiny85-use-hints
-#define PIN_SWITCH   2 //INT0
+#define PIN_SWITCH   2
 // Let's use pin A2 for the microphone; A1 is the same pin as digital 2, which
 // we're already using for the switch.
 // NB this pin is labelled as pin 4 on the chip:

@@ -34,7 +34,7 @@
 #define RAINBOW_PATTERNS
 #define WIPE_PATTERNS
 #define RANDOM_PATTERNS
-#define CHRISTMAS_COLORS
-#define DADS_COLORS
+// #define CHRISTMAS_COLORS
+// #define DADS_COLORS
 
 #endif
