@@ -1,6 +1,14 @@
 #ifndef MY_COLORS_H
 #define MY_COLORS_H
 
+#include "hardware.h"
+
+// (0, 0, 0)
+#define BLACK 0
+
+// (235, 235, 235)
+#define WHITE strip.Color(235, 235, 235)
+
 //These triplets are the R, G, and B values that go to NeoPixels.
 uint8_t myColors[] = {
   //(0, 0) brite yellow
@@ -60,30 +68,36 @@ uint8_t myColors[] = {
   //(18, 108)  lavender
   146, 104, 182,
   89, 71, 106,
+#ifdef CHRISTMAS_COLORS
+  // https://www.schemecolor.com/christmas-hex-color-codes.php
+  // Cal Poly Pomona Green
+  22, 91, 51,
+  // Dark Spring Green
+  20, 107, 58,	
+  // Orange-Yellow
+  248, 178, 41,
+  // Cinnabar
+  234, 70, 48,
+  // Firebrick
+  187, 37, 40,
+#endif
+#ifdef DADS_COLORS
   //(19, 114)  Dad's pink
-  82, 12, 31,
   82, 12, 31,
   //(20, 120) Dad's Pale Yellow
   170, 68, 13,
-  170, 68, 13,
   //(21, 126)  Dad's light-pink
-  136, 43, 28,
   136, 43, 28,
   //(22, 132)  Dad's all red
   255, 0, 0,
-  255, 0, 0,
   //(23, 132)  Dad's all blue
-  0, 0, 255,
   0, 0, 255,
   //(23, 132)  Dad's light-blue
   20, 89, 255,
-  20, 89, 255,
   //(24, 138)  Dad's rose
-  40, 0, 26,
-  40, 0, 26,
-  //(25, 144) black
-  0, 0, 0
+  40, 0, 26
+#endif
 };
-uint8_t colorSets = (sizeof(myColors) / sizeof(uint8_t)) / 3 - 1;
+uint8_t colorSets = (sizeof(myColors) / sizeof(uint8_t)) / 3;
 
 #endif
